@@ -1,0 +1,20 @@
+---
+ - hosts: localhost
+   connection: local
+   gather_facts: false
+   tasks:
+     - name: Ensure python docker package
+       pip:
+         name: docker
+
+     - name: Pull image from Docker Hub (replace with your repo)
+       community.docker.docker_image:
+         name: yourdockerhubuser/scientific-calculator:latest
+         source: pull
+
+     - name: Run container
+       community.docker.docker_container:
+         name: scientific_calculator
+         image: yourdockerhubuser/scientific-calculator:latest
+         state: started
+         restart_policy: unless-stopped
