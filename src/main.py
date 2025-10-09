@@ -53,7 +53,7 @@ def run_noninteractive():
     Keeps the process alive so container orchestration doesn't repeatedly
     restart it when input() would raise EOFError.
     """
-    print("Running in non-interactive (container) mode. Waiting...", flush=True)
+    # print("Running in non-interactive (container) mode. Waiting...", flush=True)
     try:
         while True:
             time.sleep(3600)
@@ -63,8 +63,8 @@ def run_noninteractive():
 
 if __name__ == '__main__':
     if not sys.stdin.isatty():
-        print("[startup] no TTY detected, entering non-interactive mode", flush=True)
+        # print("[startup] no TTY detected, entering non-interactive mode", flush=True)
         run_noninteractive()
     else:
-        print("[startup] interactive TTY detected, starting CLI", flush=True)
+        # print("[startup] interactive TTY detected, starting CLI", flush=True)
         run()
