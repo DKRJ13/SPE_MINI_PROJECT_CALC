@@ -3,41 +3,35 @@
   connection: local
   gather_facts: false
   tasks:
-    ---
-    - hosts: localhost
-      connection: local
-      gather_facts: false
-      tasks:
-        - name: Ensure python docker package
-          pip:
-            name: docker
+    - name: Ensure python docker package
+      pip:
+        name: docker
 
-        - name: Set image name
-          set_fact:
-            image_name: "{{ image_name | default('yourdockerhubuser/scientific-calculator:latest') }}"
+    - name: Set image name
+      set_fact:
+        image_name: "{{ image_name | default('yourdockerhubuser/scientific-calculator:latest') }}"
 
-        - name: Login to Docker registry if credentials provided
-          community.docker.docker_login:
-            registry_url: "https://index.docker.io/v1/"
-            username: "{{ registry_username | default(omit) }}"
-            password: "{{ registry_password | default(omit) }}"
-          when: registry_username is defined and registry_password is defined
+    - name: Login to Docker registry if credentials provided
+      community.docker.docker_login:
+        registry_url: "https://index.docker.io/v1/"
+        username: "{{ registry_username | default(omit) }}"
+        password: "{{ registry_password | default(omit) }}"
+      when: registry_username is defined and registry_password is defined
 
-        - name: Pull image from Docker Hub (supports private registries)
-          community.docker.docker_image:
-            name: "{{ image_name }}"
-            source: pull
+    - name: Pull image from Docker Hub (supports private registries)
+      community.docker.docker_image:
+        name: "{{ image_name }}"
+        source: pull
 
-        - name: Stop existing container if present
-          community.docker.docker_container:
-            name: scientific_calculator
-            state: absent
-          ignore_errors: true
+    - name: Stop existing container if present
+      community.docker.docker_container:
+        name: scientific_calculator
+        state: absent
+      ignore_errors: true
 
-        - name: Run container
-          community.docker.docker_container:
-            name: scientific_calculator
-            image: "{{ image_name }}"
-            state: started
-            restart_policy: unless-stopped
-#      - name: Ensure python docker package
+    - name: Run container
+      community.docker.docker_container:
+        name: scientific_calculator
+        image: "{{ image_name }}"
+        state: started
+        restart_policy: unless-stopped
