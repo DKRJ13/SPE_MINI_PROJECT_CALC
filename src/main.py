@@ -1,5 +1,8 @@
 """Command-line interface for the scientific calculator."""
-from .calculator import sqrt, factorial ,ln, power
+from .calculator import sqrt, factorial, ln, power
+import sys
+import time
+
 
 def print_menu():
     print("Scientific Calculator")
@@ -13,7 +16,14 @@ def print_menu():
 def run():
     while True:
         print_menu()
-        choice = input("Choose an option: ")
+        try:
+            choice = input("Choose an option: ")
+        except EOFError:
+            # No TTY attached — switch to non-interactive mode to avoid crash loops
+            print("No TTY detected; switching to non-interactive mode.")
+            run_noninteractive()
+            return
+
         try:
             if choice == '1':
                 x = float(input("Enter x: "))
@@ -37,5 +47,21 @@ def run():
             print("Error:", e)
 
 
+def run_noninteractive():
+    """Minimal non-interactive wait loop used when no TTY is attached.
+
+    Keeps the process alive so container orchestration doesn't repeatedly
+    restart it when input() would raise EOFError.
+    """
+    try:
+        while True:
+            time.sleep(3600)
+    except KeyboardInterrupt:
+        pass
+
+
 if __name__ == '__main__':
-    run()
+    if not sys.stdin.isatty():
+        run_noninteractive()
+    else:
+        run()
