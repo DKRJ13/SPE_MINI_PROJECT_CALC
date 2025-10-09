@@ -47,6 +47,15 @@ class TestCalculator(unittest.TestCase):
     def test_power(self):
         self.assertAlmostEqual(calculator.power(2, 3), 8.0)
 
+#add more tcs
+
+    def test_power_negative_base(self):
+        self.assertAlmostEqual(calculator.power(-2, 3), -8.0)
+
+    def test_power_fractional(self):
+        self.assertAlmostEqual(calculator.power(4, 0.5), 2.0)
+
+
 
 if __name__ == '__main__':
     unittest.main()
