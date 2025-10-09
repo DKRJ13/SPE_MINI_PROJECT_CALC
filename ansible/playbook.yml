@@ -1,32 +1,62 @@
----
- - hosts: localhost
-   connection: local
-   gather_facts: false
-   tasks:
-     - name: Ensure python docker package
-       pip:
-         name: docker
+# ---
+#  - hosts: localhost
+#    connection: local
+#    gather_facts: false
+#    tasks:
+#      - name: Ensure python docker package
+#        pip:
+#          name: docker
 
-     - name: Set image name
-       set_fact:
+#      - name: Set image name
+#        set_fact:
+#         image_name: "{{ image_name | default('yourdockerhubuser/scientific-calculator:latest') }}"
+
+#     - name: Pull image from Docker Hub (supports private registries)
+#       community.docker.docker_image:
+#         name: "{{ image_name }}"
+#         source: pull
+#         # Optional registry auth (passed via extra vars)
+#         registry_username: "{{ registry_username | default(omit) }}"
+#         registry_password: "{{ registry_password | default(omit) }}"
+
+#      - name: Stop existing container if present
+#        community.docker.docker_container:
+#         name: scientific_calculator
+#         state: absent
+#        ignore_errors: true
+
+#      - name: Run container
+#        community.docker.docker_container:
+#         name: scientific_calculator
+#         image: "{{ image_name }}"
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Ensure python docker package
+      pip:
+        name: docker
+
+    - name: Set image name
+      set_fact:
         image_name: "{{ image_name | default('yourdockerhubuser/scientific-calculator:latest') }}"
 
     - name: Pull image from Docker Hub (supports private registries)
       community.docker.docker_image:
         name: "{{ image_name }}"
         source: pull
-        # Optional registry auth (passed via extra vars)
         registry_username: "{{ registry_username | default(omit) }}"
         registry_password: "{{ registry_password | default(omit) }}"
 
-     - name: Stop existing container if present
-       community.docker.docker_container:
+    - name: Stop existing container if present
+      community.docker.docker_container:
         name: scientific_calculator
         state: absent
-       ignore_errors: true
+      ignore_errors: true
 
-     - name: Run container
-       community.docker.docker_container:
+    - name: Run container
+      community.docker.docker_container:
         name: scientific_calculator
         image: "{{ image_name }}"
         state: started
