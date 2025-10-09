@@ -1,7 +1,6 @@
 pipeline {
     agent any
     stages {
-
         stage('Checkout') {
             steps {
                 checkout scm
@@ -69,5 +68,30 @@ pipeline {
             }
         }
 
+
+
     }
+
+    post {
+        success {
+            // Requires Email Extension Plugin and configured SMTP in Jenkins global settings
+            emailext(
+                to: 'Dakshrajesh04@gmail.com',
+                subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """<p>Build SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}</p>
+                         <p>Console: <a href='${env.BUILD_URL}'>${env.BUILD_URL}</a></p>""",
+                mimeType: 'text/html'
+            )
+        }
+        failure {
+            emailext(
+                to: 'Dakshrajesh04@gmail.com',
+                subject: "FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """<p>Build FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}</p>
+                         <p>Console: <a href='${env.BUILD_URL}'>${env.BUILD_URL}</a></p>""",
+                mimeType: 'text/html'
+            )
+        }
+    }
+
 }
