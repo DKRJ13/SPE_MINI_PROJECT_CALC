@@ -64,23 +64,23 @@ pipeline {
         //     }
         // 
 
-        stage('Deploy with Ansible') {
-            steps {
-                // Use Docker Hub credentials for pulling the image if it's private
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
-                    sh '''
-                        # Ensure Ansible and dependencies are ready
-                        ansible-galaxy collection install community.docker
-                        python3 -m pip install --user docker
+        // stage('Deploy with Ansible') {
+        //     steps {
+        //         // Use Docker Hub credentials for pulling the image if it's private
+        //         withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
+        //             sh '''
+        //                 # Ensure Ansible and dependencies are ready
+        //                 ansible-galaxy collection install community.docker
+        //                 python3 -m pip install --user docker
 
-                        # Run the Ansible playbook locally
-                        ansible-playbook ansible/playbook.yml -i ansible/inventory/hosts.ini -c local \
-                        --extra-vars "image_name=${DOCKERHUB_USER}/scientific-calculator:latest \
-                        registry_username=${DOCKERHUB_USER} registry_password=${DOCKERHUB_PASS}"
-                    '''
-                }
-            }
-        }
+        //                 # Run the Ansible playbook locally
+        //                 ansible-playbook ansible/playbook.yml -i ansible/inventory/hosts.ini -c local \
+        //                 --extra-vars "image_name=${DOCKERHUB_USER}/scientific-calculator:latest \
+        //                 registry_username=${DOCKERHUB_USER} registry_password=${DOCKERHUB_PASS}"
+        //             '''
+        //         }
+        //     }
+        // }
 
 
 
