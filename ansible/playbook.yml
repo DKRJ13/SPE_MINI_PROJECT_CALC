@@ -2,25 +2,15 @@
 - hosts: localhost
   connection: local
   gather_facts: false
-  vars:
-    default_image: "yourdockerhubuser/scientific-calculator:latest"
 
   tasks:
-    - name: Ensure community.docker collection is available
-      ansible.builtin.command:
-        cmd: ansible-galaxy collection install community.docker
-      changed_when: false
-      run_once: true
-
-    - name: Ensure python docker package is present
-      ansible.builtin.pip:
+    - name: Ensure python docker package
+      pip:
         name: docker
-        state: present
-      run_once: true
 
     - name: Set image name
-      ansible.builtin.set_fact:
-        image_name: "{{ image_name | default(default_image) }}"
+      set_fact:
+        image_name: "{{ image_name | default('yourdockerhubuser/scientific-calculator:latest') }}"
 
     - name: Login to Docker registry if credentials provided
       community.docker.docker_login:
@@ -29,19 +19,18 @@
         password: "{{ registry_password | default(omit) }}"
       when: registry_username is defined and registry_password is defined
 
-    - name: Pull image from registry
+    - name: Pull image from Docker Hub (supports private registries)
       community.docker.docker_image:
         name: "{{ image_name }}"
         source: pull
-        state: present
 
-    - name: Stop and remove existing container
+    - name: Stop existing container if present
       community.docker.docker_container:
         name: scientific_calculator
         state: absent
       ignore_errors: true
 
-    - name: Run container configured for attach
+    - name: Run container (configured for `docker attach`)
       community.docker.docker_container:
         name: scientific_calculator
         image: "{{ image_name }}"
@@ -50,42 +39,16 @@
         tty: yes
         interactive: yes
         detach: yes
+        command: "python -u -m src.main"
         env:
           PYTHONUNBUFFERED: '1'
-        # --- CRITICAL CHANGE HERE ---
-        # Option 1: Start an interactive bash shell, which keeps the container running.
-        # This is ideal if you want to attach and then manually run commands or your script.
-        command: ["/bin/bash"]
-        #
-        # Option 2: Run your application and then keep the container alive indefinitely
-        # using 'tail -f /dev/null'. This is good if you want your app to run
-        # but also want the container to remain for inspection/attachment.
-        # command: ["/bin/bash", "-c", "python -u -m src.main; tail -f /dev/null"]
-        #
-        # Choose the option that best suits your needs for attaching.
-        # For pure attachment and exploration, Option 1 (`/bin/bash`) is simplest.
-        # ----------------------------
 
-    - name: Wait for container to stabilize
-      ansible.builtin.pause:
-        seconds: 5
-
-    - name: Get container info
+    - name: Wait for container to be running
       community.docker.docker_container_info:
         name: scientific_calculator
       register: container_info
 
-    - name: Fail if container is not running or has exited
-      ansible.builtin.fail:
-        msg: "scientific_calculator container is not running or has exited unexpectedly."
-      when:
-        - (container_info.containers is not defined) or
-          ((container_info.containers | length) == 0) or
-          (container_info.containers[0].state.status != 'running')
-
-    - name: Show attach instructions
-      ansible.builtin.debug:
-        msg: |
-          Container 'scientific_calculator' is running and ready for attach.
-          To attach, use: docker attach scientific_calculator
-          To detach without stopping the container: Ctrl-P Ctrl-Q
+    - name: Fail if container is not running
+      fail:
+        msg: "scientific_calculator container is not running or failed to start"
+      when: container_info is not defined or container_info.containers | length == 0
