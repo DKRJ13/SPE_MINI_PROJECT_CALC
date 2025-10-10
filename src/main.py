@@ -71,5 +71,3 @@ if __name__ == '__main__':
 
     #testing webhook
 
-    #testing eud
-
