@@ -24,18 +24,13 @@
         name: "{{ image_name }}"
         source: pull
 
+#mistake rectified
     - name: Stop existing container if present
       community.docker.docker_container:
         name: scientific_calculator
         state: absent
       ignore_errors: true
 
-    # - name: Run container
-    #   community.docker.docker_container:
-    #     name: scientific_calculator
-    #     image: "{{ image_name }}"
-    #     state: started
-    #     restart_policy: unless-stopped
     - name: Run scientific calculator container
       community.docker.docker_container:
         name: scientific_calculator
