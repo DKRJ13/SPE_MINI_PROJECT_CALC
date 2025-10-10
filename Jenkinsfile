@@ -25,16 +25,7 @@ pipeline {
             }
         }
             
-        // stage('Docker Push') {
-        //     steps {
-        //         // Use Jenkins credentials (username/password) with id 'dockerhub-cred'
-        //         withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
-        //             sh 'docker tag scientific-calculator:latest ${DOCKERHUB_USER}/scientific-calculator:latest'
-        //             sh 'echo ${DOCKERHUB_PASS} | docker login -u ${DOCKERHUB_USER} --password-stdin'
-        //             sh 'docker push ${DOCKERHUB_USER}/scientific-calculator:latest'
-        //         }
-        //     }
-        // }
+
         stage('Docker Push') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
@@ -48,21 +39,6 @@ pipeline {
                 }
             }
         }
-
-
-        // stage('Deploy with Ansible') {
-        //     steps {
-        //         // Pass Docker Hub creds into Ansible to pull private images if needed
-        //         withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
-        //             sh '''
-        //                 ansible-galaxy collection install community.docker
-        //                 python3 -m pip install --user docker
-        //                 ansible-playbook ansible/playbook.yml -i inventory/hosts.ini -c local \
-        //                   --extra-vars "image_name=${DOCKERHUB_USER}/scientific-calculator:latest registry_username=${DOCKERHUB_USER} registry_password=${DOCKERHUB_PASS}"
-        //             '''
-        //         }
-        //     }
-        // 
 
         stage('Deploy with Ansible') {
             steps {
@@ -86,33 +62,11 @@ pipeline {
 
     }
 
-    // post {
-    //     success {
-    //         // Requires Email Extension Plugin and configured SMTP in Jenkins global settings
-    //         emailext(
-    //             to: 'dakshrajesh04@gmail.com',
-    //             subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-    //             body: """<p>Build SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}</p>
-    //                      <p>Console: <a href='${env.BUILD_URL}'>${env.BUILD_URL}</a></p>""",
-    //             mimeType: 'text/html'
-    //         )
-    //     }
-    //     failure {
-    //         emailext(
-    //             to: 'dakshrajesh04@gmail.com',
-    //             subject: "FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-    //             body: """<p>Build FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}</p>
-    //                      <p>Console: <a href='${env.BUILD_URL}'>${env.BUILD_URL}</a></p>""",
-    //             mimeType: 'text/html'
-    //         )
-    //     }
-    // }
-
     post {
         success {
             emailext(
                 to: 'dakshrajesh04@gmail.com',
-                from: 'dakshrajesh04@gmail.com',
+                // to: 'dakshrajesh04@gmail.com',
                 replyTo: 'dakshrajesh04@gmail.com',
                 subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 body: """<p>Build SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}</p>
@@ -123,7 +77,7 @@ pipeline {
         failure {
             emailext(
                 to: 'dakshrajesh04@gmail.com',
-                from: 'dakshrajesh04@gmail.com',
+                // to: 'dakshrajesh04@gmail.com',
                 replyTo: 'dakshrajesh04@gmail.com',
                 subject: "FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 body: """<p>Build FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}</p>
