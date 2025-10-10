@@ -30,25 +30,9 @@
         state: absent
       ignore_errors: true
 
-    - name: Run container (configured for `docker attach`)
+    - name: Run container
       community.docker.docker_container:
         name: scientific_calculator
         image: "{{ image_name }}"
         state: started
         restart_policy: unless-stopped
-        tty: yes
-        interactive: yes
-        detach: yes
-        command: "python -u -m src.main"
-        env:
-          PYTHONUNBUFFERED: '1'
-
-    - name: Wait for container to be running
-      community.docker.docker_container_info:
-        name: scientific_calculator
-      register: container_info
-
-    - name: Fail if container is not running
-      fail:
-        msg: "scientific_calculator container is not running or failed to start"
-      when: container_info is not defined or container_info.containers | length == 0
