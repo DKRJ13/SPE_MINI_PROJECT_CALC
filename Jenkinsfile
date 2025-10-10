@@ -51,6 +51,7 @@ pipeline {
                         ansible-playbook ansible/playbook.yml -i ansible/inventory/hosts.ini -c local \
                         --extra-vars "image_name=${DOCKERHUB_USER}/scientific-calculator:latest \
                         registry_username=${DOCKERHUB_USER} registry_password=${DOCKERHUB_PASS}"
+                 
                     '''
                 }
             }
