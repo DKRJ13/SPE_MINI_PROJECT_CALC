@@ -10,11 +10,13 @@
       ansible.builtin.command:
         cmd: ansible-galaxy collection install community.docker
       changed_when: false
+      run_once: true # Only run this once, even if multiple hosts were defined
 
     - name: Ensure python docker package is present
       ansible.builtin.pip:
         name: docker
         state: present
+      run_once: true # Only run this once
 
     - name: Set image name
       ansible.builtin.set_fact:
@@ -31,12 +33,13 @@
       community.docker.docker_image:
         name: "{{ image_name }}"
         source: pull
+        state: present # Ensure the image is present, not just pulled
 
     - name: Stop and remove existing container
       community.docker.docker_container:
         name: scientific_calculator
         state: absent
-      ignore_errors: true
+      ignore_errors: true # Continue even if container doesn't exist
 
     - name: Run container configured for attach
       community.docker.docker_container:
@@ -49,21 +52,39 @@
         detach: yes
         env:
           PYTHONUNBUFFERED: '1'
+        # Override ENTRYPOINT to keep the container alive for attach
+        # You might need to adjust this if your src.main is a long-running server
+        # For a simple interactive app, starting a shell might be more appropriate.
+        # If src.main is interactive and waits for input, it might keep the container alive.
+        # Otherwise, a shell or an infinite loop is needed.
+        # Example: command: /bin/bash # To get a shell to attach to
+        # Example: command: sh -c "python -u -m src.main && tail -f /dev/null"
+        command: ["python", "-u", "-m", "src.main"] # Assuming src.main is interactive and keeps running
+        # If src.main exits quickly, use a command like this:
+        # command: ["/bin/bash", "-c", "python -u -m src.main; tail -f /dev/null"]
+        # Or just:
+        # command: ["tail", "-f", "/dev/null"] # If you just want to attach to a running container
 
-    - name: Wait for container to be running
+    - name: Wait for container to stabilize
+      ansible.builtin.pause:
+        seconds: 5 # Give Docker a moment to fully start and register the container
+
+    - name: Get container info
       community.docker.docker_container_info:
         name: scientific_calculator
       register: container_info
 
-    - name: Fail if container is not running
+    - name: Fail if container is not running or has exited
       ansible.builtin.fail:
-        msg: "scientific_calculator container is not running"
-      when: (container_info.containers is not defined) or ((container_info.containers | length) == 0)
+        msg: "scientific_calculator container is not running or has exited unexpectedly."
+      when:
+        - (container_info.containers is not defined) or
+          ((container_info.containers | length) == 0) or
+          (container_info.containers[0].state.status != 'running')
 
     - name: Show attach instructions
       ansible.builtin.debug:
         msg: |
-          Container started and ready for attach.
-          Use: docker attach scientific_calculator
-          Detach without stopping: Ctrl-P Ctrl-Q
-
+          Container 'scientific_calculator' is running and ready for attach.
+          To attach, use: docker attach scientific_calculator
+          To detach without stopping the container: Ctrl-P Ctrl-Q
