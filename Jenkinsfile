@@ -25,16 +25,30 @@ pipeline {
             }
         }
             
+        // stage('Docker Push') {
+        //     steps {
+        //         // Use Jenkins credentials (username/password) with id 'dockerhub-cred'
+        //         withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
+        //             sh 'docker tag scientific-calculator:latest ${DOCKERHUB_USER}/scientific-calculator:latest'
+        //             sh 'echo ${DOCKERHUB_PASS} | docker login -u ${DOCKERHUB_USER} --password-stdin'
+        //             sh 'docker push ${DOCKERHUB_USER}/scientific-calculator:latest'
+        //         }
+        //     }
+        // }
         stage('Docker Push') {
             steps {
-                // Use Jenkins credentials (username/password) with id 'dockerhub-cred'
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
-                    sh 'docker tag scientific-calculator:latest ${DOCKERHUB_USER}/scientific-calculator:latest'
-                    sh 'echo ${DOCKERHUB_PASS} | docker login -u ${DOCKERHUB_USER} --password-stdin'
-                    sh 'docker push ${DOCKERHUB_USER}/scientific-calculator:latest'
+                    sh '''
+                        docker rmi -f ${DOCKERHUB_USER}/scientific-calculator:latest || true
+                        docker tag scientific-calculator:latest ${DOCKERHUB_USER}/scientific-calculator:latest
+
+                        echo ${DOCKERHUB_PASS} | docker login -u ${DOCKERHUB_USER} --password-stdin
+                        docker push ${DOCKERHUB_USER}/scientific-calculator:latest
+                    '''
                 }
             }
         }
+
 
         // stage('Deploy with Ansible') {
         //     steps {
