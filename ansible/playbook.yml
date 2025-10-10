@@ -24,7 +24,7 @@
         name: "{{ image_name }}"
         source: pull
 
-#mistake rectified
+#mistake rectified here
     - name: Stop existing container if present
       community.docker.docker_container:
         name: scientific_calculator
