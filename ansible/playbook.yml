@@ -3,7 +3,6 @@
   connection: local
   gather_facts: false
   vars:
-    # default image if not passed via --extra-vars
     default_image: "yourdockerhubuser/scientific-calculator:latest"
 
   tasks:
@@ -12,12 +11,12 @@
         cmd: ansible-galaxy collection install community.docker
       changed_when: false
 
-    - name: Ensure python docker package is present for Ansible modules
+    - name: Ensure python docker package is present
       ansible.builtin.pip:
         name: docker
         state: present
 
-    - name: Set image name variable
+    - name: Set image name
       ansible.builtin.set_fact:
         image_name: "{{ image_name | default(default_image) }}"
 
@@ -33,7 +32,7 @@
         name: "{{ image_name }}"
         source: pull
 
-    - name: Stop and remove existing container if present
+    - name: Stop and remove existing container
       community.docker.docker_container:
         name: scientific_calculator
         state: absent
@@ -48,7 +47,6 @@
         tty: yes
         interactive: yes
         detach: yes
-        command: "python -u -m src.main"
         env:
           PYTHONUNBUFFERED: '1'
 
@@ -60,9 +58,9 @@
     - name: Fail if container is not running
       ansible.builtin.fail:
         msg: "scientific_calculator container is not running"
-      when: container_info is not defined or (container_info.get('containers', []) | length) == 0
+      when: container_info.containers | length == 0
 
-    - name: Show how to attach to the container (info)
+    - name: Show attach instructions
       ansible.builtin.debug:
         msg: |
           Container started and ready for attach.
