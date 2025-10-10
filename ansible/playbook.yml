@@ -2,14 +2,24 @@
 - hosts: localhost
   connection: local
   gather_facts: false
-  tasks:
-    - name: Ensure python docker package
-      pip:
-        name: docker
+  vars:
+    # default image if not passed via --extra-vars
+    default_image: "yourdockerhubuser/scientific-calculator:latest"
 
-    - name: Set image name
-      set_fact:
-        image_name: "{{ image_name | default('yourdockerhubuser/scientific-calculator:latest') }}"
+  tasks:
+    - name: Ensure community.docker collection is available
+      ansible.builtin.command:
+        cmd: ansible-galaxy collection install community.docker
+      changed_when: false
+
+    - name: Ensure python docker package is present for Ansible modules
+      ansible.builtin.pip:
+        name: docker
+        state: present
+
+    - name: Set image name variable
+      ansible.builtin.set_fact:
+        image_name: "{{ image_name | default(default_image) }}"
 
     - name: Login to Docker registry if credentials provided
       community.docker.docker_login:
@@ -18,33 +28,27 @@
         password: "{{ registry_password | default(omit) }}"
       when: registry_username is defined and registry_password is defined
 
-    - name: Pull image from Docker Hub (supports private registries)
+    - name: Pull image from registry
       community.docker.docker_image:
         name: "{{ image_name }}"
         source: pull
 
-    - name: Stop existing container if present
+    - name: Stop and remove existing container if present
       community.docker.docker_container:
         name: scientific_calculator
         state: absent
       ignore_errors: true
 
-    - name: Run container (configured for `docker attach`)
-      # Run the container so its main process is the interactive CLI. This
-      # starts the container detached but keeps a TTY and stdin open so you
-      # can later run `docker attach scientific_calculator` to interact with
-      # the CLI. To detach without stopping the container, use Ctrl-p Ctrl-q.
+    - name: Run container configured for attach
       community.docker.docker_container:
         name: scientific_calculator
         image: "{{ image_name }}"
         state: started
         restart_policy: unless-stopped
-        # Keep a TTY and stdin open so `docker attach` can connect to PID 1
         tty: yes
-        stdin_open: yes
-        # Override command to run the CLI as PID 1 (ensure image supports it)
+        interactive: yes
+        detach: yes
         command: "python -u -m src.main"
-        # Optional: set environment to ensure unbuffered logs (image may already set this)
         env:
           PYTHONUNBUFFERED: '1'
 
@@ -54,6 +58,13 @@
       register: container_info
 
     - name: Fail if container is not running
-      fail:
-        msg: "scientific_calculator container is not running or failed to start"
+      ansible.builtin.fail:
+        msg: "scientific_calculator container is not running"
       when: container_info is not defined or container_info.containers | length == 0
+
+    - name: Show how to attach to the container (info)
+      ansible.builtin.debug:
+        msg: |
+          Container started and ready for attach.
+          Use: docker attach scientific_calculator
+          Detach without stopping: Ctrl-P Ctrl-Q
