@@ -58,7 +58,7 @@
     - name: Fail if container is not running
       ansible.builtin.fail:
         msg: "scientific_calculator container is not running"
-      when: container_info.containers | length == 0
+      when: (container_info.containers is not defined) or ((container_info.containers | length) == 0)
 
     - name: Show attach instructions
       ansible.builtin.debug:
@@ -66,3 +66,4 @@
           Container started and ready for attach.
           Use: docker attach scientific_calculator
           Detach without stopping: Ctrl-P Ctrl-Q
+
