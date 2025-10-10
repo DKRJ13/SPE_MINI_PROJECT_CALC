@@ -10,13 +10,13 @@
       ansible.builtin.command:
         cmd: ansible-galaxy collection install community.docker
       changed_when: false
-      run_once: true # Only run this once, even if multiple hosts were defined
+      run_once: true
 
     - name: Ensure python docker package is present
       ansible.builtin.pip:
         name: docker
         state: present
-      run_once: true # Only run this once
+      run_once: true
 
     - name: Set image name
       ansible.builtin.set_fact:
@@ -33,13 +33,13 @@
       community.docker.docker_image:
         name: "{{ image_name }}"
         source: pull
-        state: present # Ensure the image is present, not just pulled
+        state: present
 
     - name: Stop and remove existing container
       community.docker.docker_container:
         name: scientific_calculator
         state: absent
-      ignore_errors: true # Continue even if container doesn't exist
+      ignore_errors: true
 
     - name: Run container configured for attach
       community.docker.docker_container:
@@ -52,22 +52,23 @@
         detach: yes
         env:
           PYTHONUNBUFFERED: '1'
-        # Override ENTRYPOINT to keep the container alive for attach
-        # You might need to adjust this if your src.main is a long-running server
-        # For a simple interactive app, starting a shell might be more appropriate.
-        # If src.main is interactive and waits for input, it might keep the container alive.
-        # Otherwise, a shell or an infinite loop is needed.
-        # Example: command: /bin/bash # To get a shell to attach to
-        # Example: command: sh -c "python -u -m src.main && tail -f /dev/null"
-        command: ["python", "-u", "-m", "src.main"] # Assuming src.main is interactive and keeps running
-        # If src.main exits quickly, use a command like this:
+        # --- CRITICAL CHANGE HERE ---
+        # Option 1: Start an interactive bash shell, which keeps the container running.
+        # This is ideal if you want to attach and then manually run commands or your script.
+        command: ["/bin/bash"]
+        #
+        # Option 2: Run your application and then keep the container alive indefinitely
+        # using 'tail -f /dev/null'. This is good if you want your app to run
+        # but also want the container to remain for inspection/attachment.
         # command: ["/bin/bash", "-c", "python -u -m src.main; tail -f /dev/null"]
-        # Or just:
-        # command: ["tail", "-f", "/dev/null"] # If you just want to attach to a running container
+        #
+        # Choose the option that best suits your needs for attaching.
+        # For pure attachment and exploration, Option 1 (`/bin/bash`) is simplest.
+        # ----------------------------
 
     - name: Wait for container to stabilize
       ansible.builtin.pause:
-        seconds: 5 # Give Docker a moment to fully start and register the container
+        seconds: 5
 
     - name: Get container info
       community.docker.docker_container_info:
