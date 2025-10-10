@@ -30,9 +30,19 @@
         state: absent
       ignore_errors: true
 
-    - name: Run container
+    # - name: Run container
+    #   community.docker.docker_container:
+    #     name: scientific_calculator
+    #     image: "{{ image_name }}"
+    #     state: started
+    #     restart_policy: unless-stopped
+    - name: Run scientific calculator container
       community.docker.docker_container:
         name: scientific_calculator
         image: "{{ image_name }}"
         state: started
+        detach: yes
+        tty: yes
+        interactive: yes
         restart_policy: unless-stopped
+
