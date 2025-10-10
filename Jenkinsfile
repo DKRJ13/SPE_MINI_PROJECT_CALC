@@ -72,26 +72,52 @@ pipeline {
 
     }
 
+    // post {
+    //     success {
+    //         // Requires Email Extension Plugin and configured SMTP in Jenkins global settings
+    //         emailext(
+    //             to: 'dakshrajesh04@gmail.com',
+    //             subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+    //             body: """<p>Build SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}</p>
+    //                      <p>Console: <a href='${env.BUILD_URL}'>${env.BUILD_URL}</a></p>""",
+    //             mimeType: 'text/html'
+    //         )
+    //     }
+    //     failure {
+    //         emailext(
+    //             to: 'dakshrajesh04@gmail.com',
+    //             subject: "FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+    //             body: """<p>Build FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}</p>
+    //                      <p>Console: <a href='${env.BUILD_URL}'>${env.BUILD_URL}</a></p>""",
+    //             mimeType: 'text/html'
+    //         )
+    //     }
+    // }
+
     post {
         success {
-            // Requires Email Extension Plugin and configured SMTP in Jenkins global settings
             emailext(
                 to: 'dakshrajesh04@gmail.com',
+                from: 'dakshrajesh04@gmail.com',
+                replyTo: 'dakshrajesh04@gmail.com',
                 subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 body: """<p>Build SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}</p>
-                         <p>Console: <a href='${env.BUILD_URL}'>${env.BUILD_URL}</a></p>""",
+                        <p>Console: <a href='${env.BUILD_URL}'>${env.BUILD_URL}</a></p>""",
                 mimeType: 'text/html'
             )
         }
         failure {
             emailext(
                 to: 'dakshrajesh04@gmail.com',
+                from: 'dakshrajesh04@gmail.com',
+                replyTo: 'dakshrajesh04@gmail.com',
                 subject: "FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 body: """<p>Build FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}</p>
-                         <p>Console: <a href='${env.BUILD_URL}'>${env.BUILD_URL}</a></p>""",
+                        <p>Console: <a href='${env.BUILD_URL}'>${env.BUILD_URL}</a></p>""",
                 mimeType: 'text/html'
             )
         }
     }
+
 
 }
