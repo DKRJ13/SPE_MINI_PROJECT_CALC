@@ -45,7 +45,7 @@ pipeline {
                     sh '''
                         # Ensure Ansible and dependencies are ready
                         ansible-galaxy collection install community.docker
-                        python3 -m pip install --user docker
+                        python3 -m pip install docker
 
                         # Run the Ansible playbook locally
                         ansible-playbook ansible/playbook.yml -i ansible/inventory/hosts.ini -c local \
