@@ -28,6 +28,8 @@ def ln(x: float) -> float:
 def power(x: float, b: float) -> float:
     """Return x raised to the power b."""
     # math.pow handles many edge cases; keep simple wrapper
+    #change made for viva
+    
     return math.pow(x, b)
 
 
