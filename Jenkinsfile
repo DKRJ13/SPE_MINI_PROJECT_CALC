@@ -19,7 +19,8 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                    sh 'docker build -t scientific-calculator:latest .'
+                // changes made for viva testing
+                sh 'docker build -t scientific-calculator:latest .'
             }
         }
             
