@@ -21,6 +21,7 @@ def run():
             choice = input("Choose an option: ")
         except EOFError:
             # No TTY attached — switch to non-interactive mode to avoid crash loops
+            # here
             print("No TTY detected; switching to non-interactive mode.")
             run_noninteractive()
             return
