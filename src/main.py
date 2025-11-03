@@ -11,7 +11,7 @@ def print_menu():
     print("3) Natural logarithm ln(x)")
     print("4) Power x^b")
     print("5) Exit")
-    #print("New feature")#
+    #print("New feature")# added
 
 
 def run():
