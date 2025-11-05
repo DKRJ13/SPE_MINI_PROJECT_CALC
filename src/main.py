@@ -20,8 +20,6 @@ def run():
         try:
             choice = input("Choose an option: ")
         except EOFError:
-            # No TTY attached — switch to non-interactive mode to avoid crash loops
-            # here
             print("No TTY detected; switching to non-interactive mode.")
             run_noninteractive()
             return
@@ -51,7 +49,7 @@ def run():
                 b = float(input("Enter b: "))
                 print(f"{x}^{b} = {power(x, b)}")
             elif choice == '5':
-                print("Goodbye")
+                #print("Goodbye")
                 break
             else:
                 print("Invalid option")
