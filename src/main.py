@@ -49,7 +49,7 @@ def run():
                 b = float(input("Enter b: "))
                 print(f"{x}^{b} = {power(x, b)}")
             elif choice == '5':
-                #print("Goodbye")
+                print("Goodbye")
                 break
             else:
                 print("Invalid option")
