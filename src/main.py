@@ -50,7 +50,7 @@ def run():
                 print(f"{x}^{b} = {power(x, b)}")
             elif choice == '5':
                 print("Goodbye")
-                print("here")
+                #print("here")
                 break
             else:
                 print("Invalid option")
