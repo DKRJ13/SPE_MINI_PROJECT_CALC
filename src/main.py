@@ -29,13 +29,22 @@ def run():
         try:
             if choice == '1':
                 x = float(input("Enter x: "))
+                if(x<0):
+                    print("Error: Cannot compute square root of negative number.")
+                    continue
                 print(f"√{x} = {sqrt(x)}")
                 #changes made here
             elif choice == '2':
                 n = int(input("Enter n (non-negative integer): "))
+                if(n<0):
+                    print("Error: Cannot compute factorial of negative number.")
+                    continue
                 print(f"{n}! = {factorial(n)}")
             elif choice == '3':
                 x = float(input("Enter x (>0): "))
+                if(x<=0):
+                    print("Error: Cannot compute natural logarithm of non-positive number.")
+                    continue
                 print(f"ln({x}) = {ln(x)}")
             elif choice == '4':
                 x = float(input("Enter x: "))
