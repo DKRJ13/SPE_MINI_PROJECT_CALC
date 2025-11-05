@@ -30,6 +30,7 @@ def run():
             if choice == '1':
                 x = float(input("Enter x: "))
                 print(f"√{x} = {sqrt(x)}")
+                #changes made here
             elif choice == '2':
                 n = int(input("Enter n (non-negative integer): "))
                 print(f"{n}! = {factorial(n)}")
