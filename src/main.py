@@ -53,7 +53,7 @@ def run():
                 #print("here")
                 break
             else:
-                print("Invalid option")
+                print("Invalid")
         except Exception as e:
             print("Error:", e)
 
